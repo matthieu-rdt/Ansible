@@ -1,0 +1,6 @@
+- name: Déployer Portainer
+  hosts: all
+  become: true
+
+  roles:
+    - portainer

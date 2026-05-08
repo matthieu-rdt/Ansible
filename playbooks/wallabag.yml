@@ -1,0 +1,6 @@
+- name: Déployer Wallabag
+  hosts: all
+  become: true
+
+  roles:
+    - wallabag

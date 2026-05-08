@@ -1,0 +1,66 @@
+---
+- name: Hardening basique du serveur
+  hosts: all
+  become: true
+
+  tasks:
+
+    # Mettre à jour le système
+    - name: Mettre à jour les paquets
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+
+    # Installer outils de sécurité
+    - name: Installer fail2ban et ufw
+      ansible.builtin.apt:
+        name:
+          - fail2ban
+          - ufw
+        state: present
+
+    # Activer le firewall (UFW)
+    - name: Autoriser SSH
+      ansible.builtin.ufw:
+        rule: allow
+        port: "{{ ssh_port }}"
+        proto: tcp
+
+    - name: Activer UFW
+      ansible.builtin.ufw:
+        state: enabled
+
+    # Configurer Fail2ban
+    - name: Activer fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: true
+
+    # Créer un utilisateur sécurisé
+    - name: Créer utilisateur
+      ansible.builtin.user:
+        name: "{{ new_user }}"
+        groups: sudo
+        append: true
+        create_home: true
+
+    # Désactiver login root SSH (SAFE)
+    - name: Désactiver login root SSH
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+
+    # Désactiver mot de passe SSH (ATTENTION)
+    - name: Désactiver auth par mot de passe
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+
+    # Redémarrer SSH
+    - name: Redémarrer SSH
+      ansible.builtin.service:
+        name: ssh
+        state: restarted

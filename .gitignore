@@ -1,0 +1,33 @@
+# Ansible Installation
+.direnv
+
+# Ansible Inventory
+inventories/*/hosts.yml
+
+# Secrets
+.vault_pass
+**/vault.yml
+
+# Python
+__pycache__/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Terraform
+.terraform/
+
+# Env files
+.env
+
+# Backup files
+*.back
+
+# Temporary files
+tmp/

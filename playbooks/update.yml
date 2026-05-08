@@ -1,0 +1,21 @@
+---
+- name: Mise a jour du VPS Debian
+  hosts: all
+
+  tasks:
+    - name: Mettre a jour le cache APT
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Mettre a jour les paquets
+      ansible.builtin.apt:
+        upgrade: safe
+
+    - name: Supprimer les paquets inutiles
+      ansible.builtin.apt:
+        autoremove: true
+
+    - name: Nettoyer le cache APT
+      ansible.builtin.apt:
+        autoclean: true

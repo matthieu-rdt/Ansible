@@ -1,0 +1,44 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Créer dossier WireGuard
+  ansible.builtin.file:
+    path: /opt/wireguard
+    state: directory
+    mode: '0755'
+
+- name: Créer dossier config WireGuard
+  ansible.builtin.file:
+    path: /opt/wireguard/config
+    state: directory
+    mode: '0755'
+
+- name: Lancer WireGuard
+  community.docker.docker_container:
+    name: wireguard
+    image: lscr.io/linuxserver/wireguard:latest
+    recreate: true
+    restart_policy: unless-stopped
+
+    capabilities:
+      - NET_ADMIN
+      - SYS_MODULE
+
+    env:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Europe/Paris"
+      SERVERURL: "auto"
+      SERVERPORT: "51820"
+      PEERS: "iphone,laptop"
+      PEERDNS: "1.1.1.1"
+      INTERNAL_SUBNET: "{{ wireguard_subnet }}"
+
+    volumes:
+      - /opt/wireguard/config:/config
+      - /lib/modules:/lib/modules
+
+    published_ports:
+      - "51820:51820/udp"
+
+    sysctls:
+      net.ipv4.conf.all.src_valid_mark: "1"

@@ -1,0 +1,23 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Créer volume PostgreSQL
+  community.docker.docker_volume:
+    name: postgres_data
+
+- name: Lancer PostgreSQL
+  community.docker.docker_container:
+    name: postgres
+    image: postgres:16
+    recreate: true
+    restart_policy: unless-stopped
+
+    env:
+      POSTGRES_DB: wallabag
+      POSTGRES_USER: wallabag
+      POSTGRES_PASSWORD: "{{ postgres_password }}"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - name: web
