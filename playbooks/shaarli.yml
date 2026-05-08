@@ -1,0 +1,6 @@
+- name: Déployer Shaarli
+  hosts: all
+  become: true
+
+  roles:
+    - shaarli

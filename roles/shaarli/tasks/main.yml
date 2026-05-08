@@ -1,0 +1,30 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Créer volume Shaarli
+  community.docker.docker_volume:
+    name: shaarli_data
+
+- name: Déployer Shaarli
+  community.docker.docker_container:
+    name: shaarli
+    image: "{{ shaarli_image }}"
+    restart_policy: unless-stopped
+    recreate: true
+
+    env:
+      TZ: Europe/Paris
+
+    volumes:
+      - shaarli_data:/var/www/shaarli/data
+
+    networks:
+      - name: web
+
+    labels:
+      traefik.enable: "true"
+
+      traefik.http.routers.shaarli.rule: "Host(`{{ shaarli_domain }}`)"
+      traefik.http.routers.shaarli.entrypoints: "websecure"
+      traefik.http.routers.shaarli.tls.certresolver: "myresolver"
+
+      traefik.http.services.shaarli.loadbalancer.server.port: "80"

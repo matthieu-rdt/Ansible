@@ -1,0 +1,4 @@
+#SPDX-License-Identifier: MIT-0
+---
+shaarli_domain: shaarli.codechaudron.fr
+shaarli_image: shaarli/shaarli:latest
