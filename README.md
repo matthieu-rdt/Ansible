@@ -1,43 +1,45 @@
-Homelab Infrastructure
+# Homelab Infrastructure
 
 Infrastructure as Code (IaC) homelab built with Ansible, Docker and Traefik.
 
-Overview
+## Overview
 
 This repository contains the automation, configuration and deployment logic for a self-hosted VPS environment focused on:
 
-* Infrastructure automation
-* Reverse proxying and HTTPS
-* Containerized services
-* VPN access
-* Personal knowledge management
-* DevOps learning and experimentation
+- Infrastructure automation
+- Reverse proxying and HTTPS
+- Containerized services
+- VPN access
+- Personal knowledge management
+- DevOps learning and experimentation
 
 The infrastructure is designed to be:
 
-* Reproducible
-* Modular
-* Versioned
-* Secure-by-default
-* Easy to extend
+- Reproducible
+- Modular
+- Versioned
+- Secure-by-default
+- Easy to extend
 
-⸻
+---
 
-Current Stack
+# Current Stack
 
-Component	Purpose
-Ansible	Infrastructure automation
-Docker	Container runtime
-Traefik	Reverse proxy and HTTPS
-Portainer	Container management UI
-WireGuard	Secure remote access VPN
-PostgreSQL	Database backend
-Wallabag	Self-hosted read-it-later / tech watch
+| Component | Purpose |
+|---|---|
+| Ansible | Infrastructure automation |
+| Docker | Container runtime |
+| Traefik | Reverse proxy and HTTPS |
+| Portainer | Container management UI |
+| WireGuard | Secure remote access VPN |
+| PostgreSQL | Database backend |
+| Wallabag | Self-hosted read-it-later / tech watch |
 
-⸻
+---
 
-Architecture
+# Architecture
 
+```text
 Internet
     ↓
 Traefik (HTTPS)
@@ -47,13 +49,15 @@ Docker services
     ├── Wallabag
     ├── PostgreSQL
     └── WireGuard
+```
 
 WireGuard is used to securely access internal administration services.
 
-⸻
+---
 
-Repository Structure
+# Repository Structure
 
+```text
 .
 ├── ansible.cfg
 ├── inventories/
@@ -67,110 +71,120 @@ Repository Structure
 ├── playbooks/
 ├── roles/
 └── tmp/
+```
 
-⸻
+---
 
-Features
+# Features
 
-Infrastructure Automation
+## Infrastructure Automation
 
-* Modular Ansible roles
-* Idempotent deployments
-* Environment-based inventories
-* Secret management with Ansible Vault
+- Modular Ansible roles
+- Idempotent deployments
+- Environment-based inventories
+- Secret management with Ansible Vault
 
-Networking & Security
+## Networking & Security
 
-* HTTPS via Traefik + Let’s Encrypt
-* VPN-only access for sensitive services
-* Docker network isolation
-* Reverse proxy routing
+- HTTPS via Traefik + Let's Encrypt
+- VPN-only access for sensitive services
+- Docker network isolation
+- Reverse proxy routing
 
-Persistence & Backups
+## Persistence & Backups
 
-* PostgreSQL persistent volumes
-* Automated PostgreSQL backups
-* Scheduled cron jobs
+- PostgreSQL persistent volumes
+- Automated PostgreSQL backups
+- Scheduled cron jobs
 
-⸻
+---
 
-Security Practices
+# Security Practices
 
 Sensitive data is intentionally excluded from Git versioning:
 
-* Ansible Vault secrets
-* SSH private keys
-* Real inventories
-* VPN peer configurations
-* Backup files
+- Ansible Vault secrets
+- SSH private keys
+- Real inventories
+- VPN peer configurations
+- Backup files
 
-Git exclusions are managed through .gitignore.
+Git exclusions are managed through `.gitignore`.
 
-⸻
+---
 
-Ansible Vault
+# Ansible Vault
 
 Secrets are encrypted using Ansible Vault.
 
 Example:
 
+```bash
 ansible-vault edit inventories/vps/group_vars/all/vault.yml
+```
 
-⸻
+---
 
-Deployment
+# Deployment
 
 Example playbook execution:
 
+```bash
 ansible-playbook playbooks/traefik.yml
+```
 
 Global deployment example:
 
+```bash
 ansible-playbook playbooks/site.yml
+```
 
-⸻
+---
 
-Backups
+# Backups
 
 PostgreSQL backups are generated automatically using cron.
 
 Example manual backup:
 
+```bash
 docker exec postgres pg_dump -U wallabag wallabag > backup.sql
+```
 
-⸻
+---
 
-Planned Improvements
+# Planned Improvements
 
-* Shaarli deployment
-* n8n automation workflows
-* Automated Wallabag → Shaarli publishing
-* Monitoring stack (Prometheus/Grafana)
-* Centralized logging
-* CI/CD pipeline
-* Docker Swarm experimentation
-* Infrastructure restoration workflow
+- Shaarli deployment
+- n8n automation workflows
+- Automated Wallabag → Shaarli publishing
+- Monitoring stack (Prometheus/Grafana)
+- Centralized logging
+- CI/CD pipeline
+- Docker Swarm experimentation
+- Infrastructure restoration workflow
 
-⸻
+---
 
-Learning Goals
+# Learning Goals
 
 This homelab is also used as a practical learning platform for:
 
-* Linux administration
-* Infrastructure as Code
-* Networking
-* Reverse proxies
-* VPNs
-* Container orchestration
-* Security hardening
-* DevOps workflows
-* GitOps principles
+- Linux administration
+- Infrastructure as Code
+- Networking
+- Reverse proxies
+- VPNs
+- Container orchestration
+- Security hardening
+- DevOps workflows
+- GitOps principles
 
-⸻
+---
 
-Notes
+# Notes
 
 This repository intentionally avoids storing production secrets or sensitive infrastructure details.
 
 Infrastructure-specific secrets are managed separately through encrypted vault files.
+
