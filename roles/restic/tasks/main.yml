@@ -1,0 +1,90 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install restic
+  apt:
+    name: restic
+    state: present
+    update_cache: true
+
+- name: Create restic repository directory
+  file:
+    path: "{{ restic_repository }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Create restic password file
+  copy:
+    dest: "{{ restic_password_file }}"
+    content: "{{ restic_password }}\n"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Check if repository already initialized
+  stat:
+    path: "{{ restic_repository }}/config"
+  register: restic_repo_config
+
+- name: Initialize restic repository
+  command: >
+    restic init
+    --repo {{ restic_repository }}
+  environment:
+    RESTIC_PASSWORD_FILE: "{{ restic_password_file }}"
+  when: not restic_repo_config.stat.exists
+
+- name: Create postgres backup directory
+  file:
+    path: "{{ postgres_backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Deploy postgres backup script
+  template:
+    src: postgres-backup.sh.j2
+    dest: /usr/local/bin/postgres-backup.sh
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Deploy restic backup script
+  template:
+    src: restic-backup.sh.j2
+    dest: /usr/local/bin/restic-backup.sh
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Deploy restic prune script
+  template:
+    src: restic-prune.sh.j2
+    dest: /usr/local/bin/restic-prune.sh
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Schedule postgres dump
+  cron:
+    name: "Postgres dump"
+    minute: "30"
+    hour: "1"
+    job: "/usr/local/bin/postgres-backup.sh >> /var/log/postgres-backup.log 2>&1"
+
+- name: Schedule restic backup
+  cron:
+    name: "Restic backup"
+    minute: "0"
+    hour: "2"
+    job: "/usr/local/bin/restic-backup.sh >> /var/log/restic-backup.log 2>&1"
+
+- name: Schedule restic prune
+  cron:
+    name: "Restic prune"
+    minute: "30"
+    hour: "2"
+    job: "/usr/local/bin/restic-prune.sh >> /var/log/restic-prune.log 2>&1"

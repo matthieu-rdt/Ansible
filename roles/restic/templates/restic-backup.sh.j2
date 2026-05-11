@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+
+export RESTIC_REPOSITORY="{{ restic_repository }}"
+export RESTIC_PASSWORD_FILE="{{ restic_password_file }}"
+
+restic backup \
+    /etc \
+    /opt \
+    {{ postgres_backup_dir }} \
+    /var/lib/docker/volumes \
+    --exclude="/var/lib/docker/overlay2" \
+    --verbose

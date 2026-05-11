@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BACKUP_DIR="{{ postgres_backup_dir }}"
+DATE=$(date +%F-%H%M%S)
+
+mkdir -p "$BACKUP_DIR"
+
+docker exec {{ vault_postgres_container }} \
+    pg_dump -U {{ vault_postgres_user }} {{ vault_postgres_db }} \
+    | gzip > "$BACKUP_DIR/{{ vault_postgres_db }}-$DATE.sql.gz"
+
+find "$BACKUP_DIR" \
+    -type f \
+    -name "*.sql.gz" \
+    -mtime +7 \
+    -delete

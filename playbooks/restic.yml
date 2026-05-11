@@ -1,0 +1,6 @@
+- name: Déployer Restic
+  hosts: all
+  become: true
+
+  roles:
+    - restic
