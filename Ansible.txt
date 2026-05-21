@@ -1,0 +1,46 @@
+mkdir .ssh
+chmod 700 .ssh
+touch .ssh/authorized_keys
+chmod 600 .ssh/authorized_keys
+
+sudo apt update
+sudo apt install direnv python3-pip python3-venv pipx
+
+mkdir ~/ansible && cd ~/ansible
+
+echo
+	eval "$(direnv hook bash)" >> .bashrc
+source .bashrc
+cd (env)
+echo
+	layout python python3 >> .envrc
+direnv allow
+
+pip install --upgrade pip
+pip install ansible
+
+Dans le venv
+pip install argcomplete
+activate-global-python-argcomplete
+
+ansible-galaxy init roles/
+
+/var/www/wallabag # php bin/console --env=prod wallabag:user:create
+
+                                                  
+  Command "wallabag:user:create" is not defined.  
+                                                  
+  Did you mean one of these?                      
+      doctrine:database:create                    
+      doctrine:schema:create                      
+      fos:oauth-server:create-client              
+      fos:user:activate                           
+      fos:user:change-password                    
+      fos:user:create                             
+      fos:user:deactivate                         
+      fos:user:demote                             
+      fos:user:promote                            
+      wallabag:user:list                          
+      wallabag:user:show
+
+ansible-vault edit inventories/vps/group_vars/all/vault.yml
