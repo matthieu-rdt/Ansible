@@ -1,66 +1,36 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/traefik
+
 - name: Créer réseau Docker
   community.docker.docker_network:
     name: web
 
-- name: Créer dossier Traefik
+- name: Créer dossier stack Traefik
   ansible.builtin.file:
-    path: /opt/traefik
+    path: /opt/stacks/traefik
     state: directory
     mode: '0755'
 
 - name: Créer dossier letsencrypt
   ansible.builtin.file:
-    path: /opt/traefik/letsencrypt
+    path: /opt/stacks/traefik/letsencrypt
     state: directory
     mode: '0755'
 
 - name: Créer fichier acme.json
   ansible.builtin.file:
-    path: /opt/traefik/letsencrypt/acme.json
+    path: /opt/stacks/traefik/letsencrypt/acme.json
     state: touch
     mode: '0600'
 
-- name: Lancer Traefik
-  community.docker.docker_container:
-    name: traefik
-    recreate: true
-    image: traefik:v2.11
-    restart_policy: always
+- name: Copier stack Docker Compose Traefik
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/traefik/compose.yml
+    mode: '0644'
 
-    command:
-      - --api.dashboard=true
-      - --providers.docker=true
-      - --providers.docker.endpoint=unix:///var/run/docker.sock
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.watch=true
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.myresolver.acme.tlschallenge=true
-      - --certificatesresolvers.myresolver.acme.email={{ traefik_email }}
-      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-
-    ports:
-      - "80:80"
-      - "443:443"
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /opt/traefik/letsencrypt:/letsencrypt
-
-    networks:
-      - name: web
-
-    labels:
-      traefik.enable: "true"
-
-      traefik.http.routers.traefik.rule: "Host(`{{ traefik_domain }}`)"
-      traefik.http.routers.traefik.entrypoints: "websecure"
-      traefik.http.routers.traefik.tls: "true"
-      traefik.http.routers.traefik.tls.certresolver: "myresolver"
-      traefik.http.routers.traefik.service: "api@internal"
-
-      traefik.http.middlewares.traefik-vpn.ipallowlist.sourcerange: "{{ traefik_ipallow }}"
-      traefik.http.routers.traefik.middlewares: "traefik-vpn"
+- name: Déployer stack Traefik
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/traefik
+    pull: always
