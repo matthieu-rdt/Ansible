@@ -31,3 +31,6 @@ __pycache__/
 
 # Temporary files
 tmp/
+
+# Commands draft
+Ansible.txt
