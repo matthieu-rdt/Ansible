@@ -1,36 +1,20 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
-- name: Créer volume Wallabag
-  community.docker.docker_volume:
-    name: wallabag_data
+# tasks file for roles/wallabag
 
-- name: Lancer Wallabag
-  community.docker.docker_container:
-    name: wallabag
-    image: wallabag/wallabag:2.6.9
-    recreate: true
-    restart_policy: unless-stopped
+- name: Créer dossier stack Wallabag
+  ansible.builtin.file:
+    path: /opt/stacks/wallabag
+    state: directory
+    mode: '0755'
 
-    env:
-      SYMFONY__ENV__DATABASE_DRIVER: pdo_pgsql
-      SYMFONY__ENV__DATABASE_HOST: postgres
-      SYMFONY__ENV__DATABASE_PORT: "5432"
-      SYMFONY__ENV__DATABASE_NAME: wallabag
-      SYMFONY__ENV__DATABASE_USER: wallabag
-      SYMFONY__ENV__DATABASE_PASSWORD: "{{ wallabag_db_password }}"
-      SYMFONY__ENV__DOMAIN_NAME: "https://{{ wallabag_domain }}"
+- name: Copier stack Docker Compose Wallabag
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/wallabag/compose.yml
+    mode: '0644'
 
-    networks:
-      - name: web
-
-    labels:
-      traefik.enable: "true"
-
-      traefik.http.routers.wallabag.rule: "Host(`{{ wallabag_domain }}`)"
-      traefik.http.routers.wallabag.entrypoints: "websecure"
-      traefik.http.routers.wallabag.tls.certresolver: "myresolver"
-
-      traefik.http.services.wallabag.loadbalancer.server.port: "80"
-
-    volumes:
-      - wallabag_data:/var/www/wallabag/data
+- name: Déployer stack Wallabag
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/wallabag
+    pull: always

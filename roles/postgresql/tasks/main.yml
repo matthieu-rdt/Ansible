@@ -1,23 +1,24 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
-- name: Créer volume PostgreSQL
-  community.docker.docker_volume:
-    name: postgres_data
+# tasks file for roles/postgres
 
-- name: Lancer PostgreSQL
-  community.docker.docker_container:
-    name: postgres
-    image: postgres:16
-    recreate: true
-    restart_policy: unless-stopped
+- name: Créer réseau backend
+  community.docker.docker_network:
+    name: backend
 
-    env:
-      POSTGRES_DB: wallabag
-      POSTGRES_USER: wallabag
-      POSTGRES_PASSWORD: "{{ postgres_password }}"
+- name: Créer dossier stack PostgreSQL
+  ansible.builtin.file:
+    path: /opt/stacks/postgres
+    state: directory
+    mode: '0755'
 
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+- name: Copier stack Docker Compose PostgreSQL
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/postgres/compose.yml
+    mode: '0644'
 
-    networks:
-      - name: web
+- name: Déployer stack PostgreSQL
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/postgres
+    pull: always
