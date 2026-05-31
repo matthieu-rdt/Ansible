@@ -1,3 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for roles/restic
+restic_repository: /opt/restic-repo
+restic_password_file: /root/.restic-password
+postgres_backup_dir: /opt/backups/postgres
