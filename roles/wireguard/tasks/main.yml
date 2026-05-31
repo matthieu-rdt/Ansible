@@ -1,8 +1,10 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
-- name: Créer dossier WireGuard
+# tasks file for roles/wireguard
+
+- name: Créer dossier stack WireGuard
   ansible.builtin.file:
-    path: /opt/wireguard
+    path: /opt/stacks/wireguard
     state: directory
     mode: '0755'
 
@@ -12,33 +14,13 @@
     state: directory
     mode: '0755'
 
-- name: Lancer WireGuard
-  community.docker.docker_container:
-    name: wireguard
-    image: lscr.io/linuxserver/wireguard:latest
-    recreate: true
-    restart_policy: unless-stopped
+- name: Copier stack Docker Compose WireGuard
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/wireguard/compose.yml
+    mode: '0644'
 
-    capabilities:
-      - NET_ADMIN
-      - SYS_MODULE
-
-    env:
-      PUID: "1000"
-      PGID: "1000"
-      TZ: "Europe/Paris"
-      SERVERURL: "auto"
-      SERVERPORT: "51820"
-      PEERS: "iphone,laptop"
-      PEERDNS: "1.1.1.1"
-      INTERNAL_SUBNET: "{{ wireguard_subnet }}"
-
-    volumes:
-      - /opt/wireguard/config:/config
-      - /lib/modules:/lib/modules
-
-    published_ports:
-      - "51820:51820/udp"
-
-    sysctls:
-      net.ipv4.conf.all.src_valid_mark: "1"
+- name: Déployer stack WireGuard
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/wireguard
+    pull: always
