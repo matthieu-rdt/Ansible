@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/n8n
+
+- name: Créer dossier stack n8n
+  ansible.builtin.file:
+    path: /opt/stacks/n8n
+    state: directory
+    mode: '0755'
+
+- name: Copier stack Docker Compose n8n
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/n8n/compose.yml
+    mode: '0644'
+
+- name: Déployer stack n8n
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/n8n
+    pull: always

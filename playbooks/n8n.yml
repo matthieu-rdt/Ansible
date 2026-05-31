@@ -1,0 +1,7 @@
+# playbooks/n8n.yml
+---
+- name: Deploy n8n
+  hosts: vps
+  become: true
+  roles:
+    - n8n
