@@ -1,30 +1,20 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
-- name: Créer volume Shaarli
-  community.docker.docker_volume:
-    name: shaarli_data
+# tasks file for roles/shaarli
 
-- name: Déployer Shaarli
-  community.docker.docker_container:
-    name: shaarli
-    image: "{{ shaarli_image }}"
-    restart_policy: unless-stopped
-    recreate: true
+- name: Créer dossier stack Shaarli
+  ansible.builtin.file:
+    path: /opt/stacks/shaarli
+    state: directory
+    mode: '0755'
 
-    env:
-      TZ: Europe/Paris
+- name: Copier stack Docker Compose Shaarli
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/shaarli/compose.yml
+    mode: '0644'
 
-    volumes:
-      - shaarli_data:/var/www/shaarli/data
-
-    networks:
-      - name: web
-
-    labels:
-      traefik.enable: "true"
-
-      traefik.http.routers.shaarli.rule: "Host(`{{ shaarli_domain }}`)"
-      traefik.http.routers.shaarli.entrypoints: "websecure"
-      traefik.http.routers.shaarli.tls.certresolver: "myresolver"
-
-      traefik.http.services.shaarli.loadbalancer.server.port: "80"
+- name: Déployer stack Shaarli
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/shaarli
+    pull: always

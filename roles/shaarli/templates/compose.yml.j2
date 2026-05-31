@@ -1,0 +1,35 @@
+services:
+  shaarli:
+    image: "{{ shaarli_image }}"
+
+    container_name: shaarli
+
+    restart: unless-stopped
+
+    environment:
+      TZ: Europe/Paris
+
+    volumes:
+      - shaarli_data:/var/www/shaarli/data
+
+    networks:
+      - web
+
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+
+      - traefik.http.routers.shaarli.rule=Host(`{{ shaarli_domain }}`)
+      - traefik.http.routers.shaarli.entrypoints=websecure
+      - traefik.http.routers.shaarli.tls=true
+      - traefik.http.routers.shaarli.tls.certresolver=myresolver
+
+      - traefik.http.services.shaarli.loadbalancer.server.port=80
+
+volumes:
+  shaarli_data:
+    external: true
+
+networks:
+  web:
+    external: true
