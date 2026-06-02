@@ -12,3 +12,12 @@ restic backup \
     /var/lib/docker/volumes \
     --exclude="/var/lib/docker/overlay2" \
     --verbose
+
+curl -X POST "{{ n8n_backup_webhook_url }}" \
+  -H "Content-Type: application/json" \
+  -H "X-Backup-Token: {{ n8n_backup_webhook_token }}" \
+  -d '{
+    "status":"success",
+    "service":"restic",
+    "host":"vps"
+  }'
