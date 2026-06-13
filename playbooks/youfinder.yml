@@ -1,0 +1,7 @@
+# playbooks/youfinder.yml
+---
+- name: Deploy YouFinder
+  hosts: vps
+  become: true
+  roles:
+    - youfinder

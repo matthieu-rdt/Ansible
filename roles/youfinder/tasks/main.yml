@@ -1,0 +1,38 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Create Youfinder stack directory
+  ansible.builtin.file:
+    path: /opt/stacks/youfinder
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create Youfinder html directory
+  ansible.builtin.file:
+    path: /opt/stacks/youfinder/html
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy Youfinder index page
+  ansible.builtin.template:
+    src: html/index.html.j2
+    dest: /opt/stacks/youfinder/html/index.html
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Deploy Youfinder compose file
+  ansible.builtin.template:
+    src: compose.yml.j2
+    dest: /opt/stacks/youfinder/compose.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start Youfinder stack
+  community.docker.docker_compose_v2:
+    project_src: /opt/stacks/youfinder
+    state: present
